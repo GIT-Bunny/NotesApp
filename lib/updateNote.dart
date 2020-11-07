@@ -2,19 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-class NewNotes extends StatefulWidget {
+class UpdateNotes extends StatefulWidget {
+  final String id;
+  UpdateNotes({Key key, this.id}) : super(key: key);
+
   @override
-  _NewNotesState createState() => _NewNotesState();
+  _UpdateNotesState createState() => _UpdateNotesState(id);
 }
 
-class _NewNotesState extends State<NewNotes> {
+class _UpdateNotesState extends State<UpdateNotes> {
+  String id;
+  _UpdateNotesState(this.id);
   TextEditingController _titleCtrl = TextEditingController();
   TextEditingController _descCtrl = TextEditingController();
 
-  Future<void> setData() async {
-    var url = "https://sr-notesapi-7nov.herokuapp.com/notes/post";
+  Future<void> getData(String id) async {
+    var url = "https://sr-notesapi-7nov.herokuapp.com/notes/get/" + id;
 
-    var response = await http.post(
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var res = convert.jsonDecode(response.body);
+      _titleCtrl.text = res['title'];
+      _descCtrl.text = res['desc'];
+    }
+  }
+
+  Future<void> updateData(String id) async {
+    var url = "https://sr-notesapi-7nov.herokuapp.com/notes/update/" + id;
+
+    var response = await http.patch(
       url,
       body: convert
           .jsonEncode({"title": _titleCtrl.text, "desc": _descCtrl.text}),
@@ -24,6 +41,13 @@ class _NewNotesState extends State<NewNotes> {
     if (response.body == 'OK') {
       Navigator.of(context).pop();
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData(id);
   }
 
   @override
@@ -40,15 +64,16 @@ class _NewNotesState extends State<NewNotes> {
             children: [
               TextField(
                 decoration: InputDecoration(
-                  hintText: 'Title',
+                  hintText: _titleCtrl.text,
                 ),
                 controller: _titleCtrl,
               ),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Description',
+                  hintText: _descCtrl.text,
                 ),
                 maxLines: 20,
+                // initialValue: _descCtrl.text,
                 controller: _descCtrl,
               ),
             ],
@@ -57,7 +82,7 @@ class _NewNotesState extends State<NewNotes> {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             setState(() {
-              setData();
+              updateData(id);
             });
           },
           label: Padding(

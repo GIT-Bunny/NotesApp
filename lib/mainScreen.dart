@@ -12,7 +12,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   Future<void> getData() async {
-    var url = "https://notes-todo.herokuapp.com/";
+    var url = "https://sr-notesapi-7nov.herokuapp.com/";
 
     var response = await http.get(url);
     if (response.statusCode == 200) {
@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> deleteData(String id) async {
-    var url = "https://notes-todo.herokuapp.com/notes/" + id;
+    var url = "https://sr-notesapi-7nov.herokuapp.com/notes/" + id;
 
     var response = await http.delete(url);
     if (response.statusCode == 200) {
@@ -37,10 +37,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       getData();
     });
-  }
-
-  showId(String id) {
-    print(id);
   }
 
   @override
@@ -81,7 +77,9 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => OpenNotes(),
+                            builder: (context) => OpenNotes(
+                              id: snapshot.data[index]['_id'],
+                            ),
                           ),
                         );
                       },
